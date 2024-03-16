@@ -34,6 +34,43 @@ public class AgreementServiceImplTest {
     }
 
 
+    @ParameterizedTest
+    @CsvSource({"test","empty", "null"})
+    public void testAddAgreementByMatcher(String name) {
+        if(name == "empty") name = "";
+        if(name == "null") name = null;
+        Agreement agreement = new Agreement();
+        agreement.setName(name);
+        String finalName = name;
+        ArgumentMatcher<Agreement> matcher = new ArgumentMatcher<Agreement>() {
+            @Override
+            public boolean matches(Agreement argument) {
+                return argument != null &&  argument.getName().equals(finalName);
+            }
+        };
+        when(dao.save(argThat(matcher))).thenReturn(agreement);
+        Agreement  result = agreementServiceImpl.addAgreement(name);
+        assertEquals(name,result.getName());
+    }
+    @ParameterizedTest
+    @MethodSource("provideParameters")
+    public void testAddAgreementByCaptor(String name) {
+        if(name == "null") name = null;
+        Agreement agreement = new Agreement();
+        agreement.setName(name);
+
+        ArgumentCaptor<Agreement> captor = ArgumentCaptor.forClass(Agreement.class);
+        when(dao.save(captor.capture())).thenReturn(null);
+
+        agreementServiceImpl.addAgreement(name);
+
+        Assertions.assertNotNull(captor);
+        assertEquals(name, captor.getValue().getName());
+    }
+    public static Stream<? extends Arguments> provideParameters() {
+        return Stream.of(Arguments.of("test"),Arguments.of(""),null);
+    }
+
     @Test
     public void testFindByName() {
         String name = "test";
