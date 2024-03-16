@@ -3,12 +3,24 @@ package ru.otus.bank.service.impl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import ru.otus.bank.dao.AgreementDao;
 import ru.otus.bank.entity.Agreement;
 
+import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.when;
 
 public class AgreementServiceImplTest {
 
@@ -21,6 +33,7 @@ public class AgreementServiceImplTest {
         agreementServiceImpl = new AgreementServiceImpl(dao);
     }
 
+
     @Test
     public void testFindByName() {
         String name = "test";
@@ -28,13 +41,13 @@ public class AgreementServiceImplTest {
         agreement.setId(10L);
         agreement.setName(name);
 
-        Mockito.when(dao.findByName(name)).thenReturn(
+        when(dao.findByName(name)).thenReturn(
                 Optional.of(agreement));
 
         Optional<Agreement> result = agreementServiceImpl.findByName(name);
 
         Assertions.assertTrue(result.isPresent());
-        Assertions.assertEquals(10, agreement.getId());
+        assertEquals(10, agreement.getId());
     }
 
     @Test
@@ -46,14 +59,14 @@ public class AgreementServiceImplTest {
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        Mockito.when(dao.findByName(captor.capture())).thenReturn(
+        when(dao.findByName(captor.capture())).thenReturn(
                 Optional.of(agreement));
 
         Optional<Agreement> result = agreementServiceImpl.findByName(name);
 
-        Assertions.assertEquals("test", captor.getValue());
+        assertEquals("test", captor.getValue());
         Assertions.assertTrue(result.isPresent());
-        Assertions.assertEquals(10, agreement.getId());
+        assertEquals(10, agreement.getId());
     }
 
 }
