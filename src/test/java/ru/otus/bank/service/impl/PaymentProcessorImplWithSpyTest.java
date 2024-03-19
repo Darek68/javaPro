@@ -41,7 +41,7 @@ public class PaymentProcessorImplWithSpyTest {
     }
 
     @Test
-    public void testTransfer() {
+    void testTransfer() {
         Agreement sourceAgreement = new Agreement();
         sourceAgreement.setId(1L);
 

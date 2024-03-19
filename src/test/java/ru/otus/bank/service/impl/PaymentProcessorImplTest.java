@@ -11,13 +11,16 @@ import ru.otus.bank.entity.Agreement;
 import ru.otus.bank.service.AccountService;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class PaymentProcessorImplTest {
+class PaymentProcessorImplTest {
 
     @Mock
     AccountService accountService;
@@ -26,7 +29,7 @@ public class PaymentProcessorImplTest {
     PaymentProcessorImpl paymentProcessor;
 
     @Test
-    public void testTransfer() {
+    void testTransfer() {
         Agreement sourceAgreement = new Agreement();
         sourceAgreement.setId(1L);
 
@@ -57,6 +60,59 @@ public class PaymentProcessorImplTest {
 
         paymentProcessor.makeTransfer(sourceAgreement, destinationAgreement,
                 0, 0, BigDecimal.ONE);
+
+    }
+
+    @Test
+    void testTransferWithComission() {
+        Agreement sourceAgreement = new Agreement();
+        sourceAgreement.setId(1L);
+
+        Agreement destinationAgreement = new Agreement();
+        destinationAgreement.setId(2L);
+
+        Account sourceAccount = new Account();
+        sourceAccount.setAmount(BigDecimal.TEN);
+        sourceAccount.setType(0);
+        sourceAccount.setId(3L);
+
+        Account destinationAccount = new Account();
+        destinationAccount.setAmount(BigDecimal.ZERO);
+        destinationAccount.setType(0);
+        destinationAccount.setId(4L);
+
+        BigDecimal amt = new BigDecimal(100);
+        BigDecimal comissionPerCent = new BigDecimal(1);
+        BigDecimal comission = amt.negate().multiply(comissionPerCent);
+
+        when(accountService.getAccounts(argThat(new ArgumentMatcher<Agreement>() {
+            @Override
+            public boolean matches(Agreement argument) {
+                return argument != null && argument.getId() == 1L;
+            }
+        }))).thenReturn(List.of(sourceAccount));
+
+        when(accountService.getAccounts(argThat(new ArgumentMatcher<Agreement>() {
+            @Override
+            public boolean matches(Agreement argument) {
+                return argument != null && argument.getId() == 2L;
+            }
+        }))).thenReturn(List.of(destinationAccount));
+
+        when(accountService.charge(argThat(new ArgumentMatcher<Long>() {
+            @Override
+            public boolean matches(Long argument) {
+                return argument != null && argument == sourceAccount.getId();
+            }
+        }), argThat(new ArgumentMatcher<BigDecimal>() {
+            @Override
+            public boolean matches(BigDecimal argument) {
+                return argument != null && argument.equals(comission);
+            }
+        }))).thenReturn(true);
+
+        paymentProcessor.makeTransferWithComission(sourceAgreement, destinationAgreement,
+                0, 0, new BigDecimal(100), new BigDecimal(1));
 
     }
 
