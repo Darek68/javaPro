@@ -22,21 +22,21 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
-public class AgreementServiceImplTest {
+class AgreementServiceImplTest {
 
     private AgreementDao dao = Mockito.mock(AgreementDao.class);
 
     AgreementServiceImpl agreementServiceImpl;
 
     @BeforeEach
-    public void init() {
+    void init() {
         agreementServiceImpl = new AgreementServiceImpl(dao);
     }
 
 
     @ParameterizedTest
     @CsvSource({"test","empty", "null"})
-    public void testAddAgreementByMatcher(String name) {
+    void testAddAgreementByMatcher(String name) {
         if(name == "empty") name = "";
         if(name == "null") name = null;
         Agreement agreement = new Agreement();
@@ -54,7 +54,7 @@ public class AgreementServiceImplTest {
     }
     @ParameterizedTest
     @MethodSource("provideParameters")
-    public void testAddAgreementByCaptor(String name) {
+    void testAddAgreementByCaptor(String name) {
         if(name == "null") name = null;
         Agreement agreement = new Agreement();
         agreement.setName(name);
@@ -67,12 +67,12 @@ public class AgreementServiceImplTest {
         Assertions.assertNotNull(captor);
         assertEquals(name, captor.getValue().getName());
     }
-    public static Stream<? extends Arguments> provideParameters() {
+    static Stream<? extends Arguments> provideParameters() {
         return Stream.of(Arguments.of("test"),Arguments.of(""),null);
     }
 
     @Test
-    public void testFindByName() {
+    void testFindByName() {
         String name = "test";
         Agreement agreement = new Agreement();
         agreement.setId(10L);
@@ -88,7 +88,7 @@ public class AgreementServiceImplTest {
     }
 
     @Test
-    public void testFindByNameWithCaptor() {
+    void testFindByNameWithCaptor() {
         String name = "test";
         Agreement agreement = new Agreement();
         agreement.setId(10L);

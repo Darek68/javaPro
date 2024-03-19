@@ -22,14 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AccountServiceImplTest {
+class AccountServiceImplTest {
     @Mock
     AccountDao accountDao;
 
@@ -37,7 +36,7 @@ public class AccountServiceImplTest {
     AccountServiceImpl accountServiceImpl;
 
     @Test
-    public void testTransfer() {
+    void testTransfer() {
         Account sourceAccount = new Account();
         sourceAccount.setAmount(new BigDecimal(100));
 
@@ -54,7 +53,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void testSourceNotFound() {
+    void testSourceNotFound() {
         when(accountDao.findById(any())).thenReturn(Optional.empty());
 
         AccountException result = assertThrows(AccountException.class, new Executable() {
@@ -68,7 +67,7 @@ public class AccountServiceImplTest {
 
 
     @Test
-    public void testTransferWithVerify() {
+    void testTransferWithVerify() {
         Account sourceAccount = new Account();
         sourceAccount.setAmount(new BigDecimal(100));
         sourceAccount.setId(1L);
@@ -95,7 +94,7 @@ public class AccountServiceImplTest {
     @CsvSource({"_acc1,1,1000",
                 "null,2,100",
                 "empty,3,1000000,"})
-    public void testAddAccountByMatcher(String number,String typeStr, String amtStr) {
+    void testAddAccountByMatcher(String number,String typeStr, String amtStr) {
         Agreement agreement = new Agreement();
         agreement.setName("Client1");
         agreement.setId(123L);
@@ -117,10 +116,11 @@ public class AccountServiceImplTest {
             }
         };
         when(accountDao.save(argThat(matcher))).thenReturn(account);
-        accountServiceImpl.addAccount(agreement,number, type,amt);
+       // accountServiceImpl.addAccount(agreement,number, type,amt);
+        assertNotNull(accountServiceImpl.addAccount(agreement,number, type,amt));
     }
     @Test
-    public void testGetAccounts() {
+    void testGetAccounts() {
         Long id = 123L;
         Agreement agreement = new Agreement();
         agreement.setId(id);
@@ -135,7 +135,7 @@ public class AccountServiceImplTest {
         assertEquals(id, captor.getValue());
     }
     @Test
-    public void testChargeException() {
+    void testChargeException() {
         when(accountDao.findById(any())).thenReturn(Optional.empty());
         AccountException result = assertThrows(AccountException.class, new Executable() {
             @Override
@@ -146,7 +146,7 @@ public class AccountServiceImplTest {
         assertEquals("No source account", result.getLocalizedMessage());
     }
     @Test
-    public void testChargeSucces() {
+    void testChargeSucces() {
         String number = "Client_acc";
         Integer type = 1;
         BigDecimal amt = new BigDecimal(100);
